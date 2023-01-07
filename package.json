@@ -1,0 +1,55 @@
+{
+  "name": "@ifaxity/semantic-release-dotnet",
+  "version": "0.0.0",
+  "author": "iFaxity (christian@faxity.se)",
+  "description": "A semantic-release plugin for building versioned .NET core projects.",
+  "license": "MIT",
+  "files": [
+    "dist/*"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild",
+    "prepublishOnly": "npm run build"
+  },
+  "homepage": "https://github.com/ifaxity/semantic-release-dotnet",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ifaxity/semantic-release-dotnet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifaxity/semantic-release-dotnet/issues"
+  },
+  "keywords": [
+    "semantic-release",
+    "semantic-release-plugin",
+    "nuget",
+    "dotnet-core",
+    "dotnet",
+    "c#"
+  ],
+  "devDependencies": {
+    "@types/lodash": "^4.14.191",
+    "@types/node": "^18.11.18",
+    "@types/semantic-release": "^17.2.4",
+    "typescript": "^4.9.4",
+    "unbuild": "^1.0.2"
+  },
+  "peerDependencies": {
+    "semantic-release": "^19.0.5"
+  },
+  "dependencies": {
+    "execa": "^6.1.0",
+    "lodash": "^4.17.21"
+  }
+}
