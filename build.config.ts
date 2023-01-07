@@ -7,7 +7,6 @@ export default defineBuildConfig({
   externals: [
     'semantic-release',
     'execa',
-    'lodash',
   ],
   clean: true,
   declaration: true,
