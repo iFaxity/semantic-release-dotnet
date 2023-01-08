@@ -1,34 +1,15 @@
 import { Context } from 'semantic-release';
+import { z } from 'zod';
 
-export interface PluginOptions {
-    /**
-     * The arguments to the `dotnet pack` command. Defaults to '-s Release'.
-     */
-    buildArguments?: string[];
-}
+const PluginOptions = z.object({
+    buildArguments: z.array(z.string()).default([]),
+});
 
-export interface ResolvedPluginOptions {
-    buildArguments: string[];
-}
+export type PluginOptions = z.infer<typeof PluginOptions>;
 
-function ensureArray(input: undefined|string|string[]): string[]|null {
-    if (input == null) {
-        return null;
-    }
-
-    return typeof input == 'string'
-        ? input.split(/\s+/g)
-        : input;
-}
-
-export function resolveOptions(
-    options: PluginOptions,
+export async function resolveOptions(
+    options: Partial<PluginOptions>,
     context: Context
-): ResolvedPluginOptions {
-    const { env } = context;
-    const { buildArguments } = options;
-
-    return {
-        buildArguments: ensureArray(buildArguments) ?? [ ],
-    };
+): Promise<PluginOptions> {
+    return PluginOptions.parseAsync(options);
 }

@@ -11,7 +11,7 @@ export async function verifyConditions(
   const errors: string[] = [];
 
   // Resolve the options and make sure we have them all populated.
-  const resolved = resolveOptions(options, context);
+  const resolved = await resolveOptions(options, context);
 
   // Set up debugging.
   const { logger } = context;
