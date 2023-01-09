@@ -1,6 +1,6 @@
 import { Config, Context } from 'semantic-release';
 import { PluginOptions, resolveOptions } from './options';
-import { execa } from 'execa';
+import execa from 'execa';
 
 const DOTNET_CLI_VERSION_REGEX = /^([0-9.]+)$/g;
 
@@ -31,7 +31,7 @@ export async function verifyConditions(
       if (match != null && match.length == 2) {
         logger.info(`Using dotnet-cli version ${match[1]}`);
       } else {
-        errors.push(`'dotnet --version' didn't respond as expected: ${stdout}`);
+        logger.warn(`'dotnet --version' didn't respond as expected: ${stdout}`);
       }
     }
   } catch {

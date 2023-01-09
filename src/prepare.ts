@@ -1,6 +1,6 @@
 import { Config, Context } from 'semantic-release';
-import { PluginOptions, resolveOptions } from './options';
-import { execa } from 'execa';
+import { normalizeArgs, PluginOptions, resolveOptions, stringifyArgs } from './options';
+import execa from 'execa';
 
 export async function prepare(
   options: Config & PluginOptions,
@@ -8,24 +8,32 @@ export async function prepare(
 ): Promise<void> {
   // Resolve the options and make sure we have them all populated.
   const resolved = await resolveOptions(options, context);
+  const { args, project, ...build } = resolved;
 
   const { logger } = context;
 
   // We need to clean and rebuild.
   logger.info(`Running the 'dotnet clean' command`);
 
-  const clean = await execa('dotnet', [ 'clean' ]);
+  const cleanCommand = await execa('dotnet', [ 'clean' ]);
 
-  if (clean.failed) {
-    throw new Error(`Cannot run 'dotnet clean'\n\n${clean.stdout}`);
+  if (cleanCommand.failed) {
+    throw new Error(`Cannot run 'dotnet clean'\n\n${cleanCommand.stdout}`);
   }
 
+  // Run the build command.
   logger.info(`Running the 'dotnet build' command`);
 
-  // Run the build command.
-  const build = await execa('dotnet', [ 'build', ...resolved.buildArguments ]);
+  const buildArgs = normalizeArgs(
+    'build',
+    project,
+    ...stringifyArgs(build),
+    ...args,
+    `-p:Version=${context.nextRelease?.version}`
+  );
+  const buildCommand = await execa('dotnet', buildArgs);
 
-  if (build.failed) {
-    throw new Error(`Cannot run 'dotnet build'\n\n${build.stdout}`);
+  if (buildCommand.failed) {
+    throw new Error(`Cannot run 'dotnet build'\n\n${buildCommand.stdout}`);
   }
 }
