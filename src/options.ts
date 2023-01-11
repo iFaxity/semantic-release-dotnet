@@ -26,7 +26,6 @@ export async function resolveOptions(
     context: Context
 ): Promise<PluginOptions> {
     const { env, nextRelease } = context;
-
     const properties = options?.properties ?? {};
 
     // Force Version property to be set to nextRelease.version
@@ -41,5 +40,6 @@ export async function resolveOptions(
         output: env.BUILD_OUTPUT,
         runtime: env.BUILD_RUNTIME,
         ...options,
+        properties,
     });
 }

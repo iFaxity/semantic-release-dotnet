@@ -13,7 +13,7 @@ export async function prepare(
 
   const properties = Object.keys(resolved.properties)
     .map(key => `-p:${key}=${resolved.properties[key]}`);
-  
+
   if (resolved.project) {
     args.push(resolved.project);
   }
