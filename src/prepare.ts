@@ -7,8 +7,12 @@ export async function prepare(
   context: Context
 ): Promise<void> {
   // Resolve the options and make sure we have them all populated.
+  const { logger } = context;
   const resolved = await resolveOptions(options, context);
   const args: string[] = [];
+
+  const properties = Object.keys(resolved.properties)
+    .map(key => `-p:${key}=${resolved.properties[key]}`);
   
   if (resolved.project) {
     args.push(resolved.project);
@@ -46,8 +50,6 @@ export async function prepare(
     args.push('--no-restore');
   }
 
-  const { logger } = context;
-
   // We need to clean and rebuild.
   logger.info(`Running the 'dotnet clean' command`);
 
@@ -64,7 +66,7 @@ export async function prepare(
     'build',
     ...args,
     ...resolved.buildArguments,
-    `-p:Version=${context.nextRelease?.version}`,
+    ...properties,
   ]);
 
   if (buildCommand.failed) {

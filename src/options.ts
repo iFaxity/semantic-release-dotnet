@@ -16,6 +16,7 @@ const PluginOptions = z.object({
     arch: z.string().optional(),
     // Other
     buildArguments: z.array(z.string()).default([]),
+    properties: z.record(z.union([ z.string(), z.number(), z.boolean() ])),
 });
 
 export type PluginOptions = z.infer<typeof PluginOptions>;
@@ -24,7 +25,14 @@ export async function resolveOptions(
     options: Partial<PluginOptions>,
     context: Context
 ): Promise<PluginOptions> {
-    const { env } = context;
+    const { env, nextRelease } = context;
+
+    const properties = options?.properties ?? {};
+
+    // Force Version property to be set to nextRelease.version
+    if (nextRelease?.version) {
+        properties.Version = nextRelease.version;
+    }
 
     return PluginOptions.parseAsync({
         arch: env.BUILD_ARCH,
