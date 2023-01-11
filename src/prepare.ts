@@ -1,5 +1,5 @@
 import { Config, Context } from 'semantic-release';
-import { normalizeArgs, PluginOptions, resolveOptions, stringifyArgs } from './options';
+import { PluginOptions, resolveOptions } from './options';
 import execa from 'execa';
 
 export async function prepare(
@@ -8,7 +8,43 @@ export async function prepare(
 ): Promise<void> {
   // Resolve the options and make sure we have them all populated.
   const resolved = await resolveOptions(options, context);
-  const { args, project, ...build } = resolved;
+  const args: string[] = [];
+  
+  if (resolved.project) {
+    args.push(resolved.project);
+  }
+
+  if (resolved.configuration) {
+    args.push('--configuration', resolved.configuration);
+  }
+
+  if (resolved.os || resolved.arch) {
+    if (resolved.os) {
+      args.push('--os', resolved.os);
+    }
+
+    if (resolved.arch) {
+      args.push('--arch', resolved.arch);
+    } 
+  } else if (resolved.runtime) {
+    args.push('--runtime', resolved.runtime);
+  }
+
+  if (resolved.output) {
+    args.push('--output', resolved.output);
+  }
+
+  if (resolved.restore) {
+    if (resolved.force) {
+      args.push('--force');
+    }
+
+    if (resolved.source) {
+      args.push('--source', resolved.source);
+    }
+  } else {
+    args.push('--no-restore');
+  }
 
   const { logger } = context;
 
@@ -24,14 +60,12 @@ export async function prepare(
   // Run the build command.
   logger.info(`Running the 'dotnet build' command`);
 
-  const buildArgs = normalizeArgs(
+  const buildCommand = await execa('dotnet', [
     'build',
-    project,
-    ...stringifyArgs(build),
     ...args,
-    `-p:Version=${context.nextRelease?.version}`
-  );
-  const buildCommand = await execa('dotnet', buildArgs);
+    ...resolved.buildArguments,
+    `-p:Version=${context.nextRelease?.version}`,
+  ]);
 
   if (buildCommand.failed) {
     throw new Error(`Cannot run 'dotnet build'\n\n${buildCommand.stdout}`);
