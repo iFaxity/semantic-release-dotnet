@@ -63,14 +63,14 @@ export async function prepare(
   }
 
   // We need to clean and rebuild.
-  logger.info(`Running the 'dotnet clean' command`);
+  logger.info(`Running the 'dotnet clean' command.`);
 
   const cleanCommand = await execPipe('dotnet', [
     'clean',
   ], options);
 
   if (cleanCommand.failed) {
-    throw new Error(`Cannot run 'dotnet clean'\n\n${cleanCommand.stdout}`);
+    throw new Error(`Cannot run 'dotnet clean'!`);
   }
 
   const command = resolved.publish
@@ -88,6 +88,6 @@ export async function prepare(
   ], options);
 
   if (buildCommand.failed) {
-    throw new Error(`Cannot run 'dotnet build'\n\n${buildCommand.stdout}`);
+    throw new Error(`Cannot run 'dotnet build'!`);
   }
 }
