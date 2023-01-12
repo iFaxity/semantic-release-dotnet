@@ -1,6 +1,6 @@
 import { Config, Context } from 'semantic-release';
 import { PluginOptions, resolveOptions } from './options';
-import execa from 'execa';
+import { execPipe } from './execPipe';
 
 const DOTNET_CLI_VERSION_REGEX = /^([0-9.]+)$/g;
 
@@ -20,27 +20,29 @@ export async function verifyConditions(
 
   // Make sure we have access to the `dotnet` command.
   try {
-    const output = await execa('dotnet', [ '--version' ]);
+    const output = await execPipe('dotnet', [
+      '--version',
+    ], options);
 
     if (output.failed) {
-      errors.push(`The 'dotnet --version' responded with an error code`);
+      errors.push(`The 'dotnet --version' responded with an error code!`);
     } else {
       const { stdout } = output;
       const match = DOTNET_CLI_VERSION_REGEX.exec(stdout);
 
       if (match != null && match.length == 2) {
-        logger.info(`Using dotnet-cli version ${match[1]}`);
+        logger.info(`Using dotnet-cli version ${match[1]}.`);
       } else {
-        logger.warn(`'dotnet --version' didn't respond as expected: ${stdout}`);
+        logger.warn(`'dotnet --version' didn't respond as expected!`);
       }
     }
   } catch {
-    errors.push(`Cannot run the 'dotnet' process`);
+    errors.push(`Cannot run the 'dotnet' process!`);
   }
 
   if (errors.length) {
     errors.forEach((x) => logger.error(x));
 
-    throw new Error('Could not verify conditions for dotnet-cli');
+    throw new Error('Could not verify conditions for dotnet-cli!');
   }
 }
