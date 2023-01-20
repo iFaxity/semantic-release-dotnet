@@ -1,6 +1,6 @@
 import { Config, Context } from 'semantic-release';
 import { PluginOptions, resolveOptions } from './options';
-import execa from 'execa';
+import { execPipe } from './execPipe';
 
 export async function prepare(
   options: Config & PluginOptions,
@@ -53,7 +53,9 @@ export async function prepare(
   // We need to clean and rebuild.
   logger.info(`Running the 'dotnet clean' command`);
 
-  const cleanCommand = await execa('dotnet', [ 'clean' ]);
+  const cleanCommand = await execPipe('dotnet', [
+    'clean',
+  ], options);
 
   if (cleanCommand.failed) {
     throw new Error(`Cannot run 'dotnet clean'\n\n${cleanCommand.stdout}`);
@@ -62,12 +64,12 @@ export async function prepare(
   // Run the build command.
   logger.info(`Running the 'dotnet build' command`);
 
-  const buildCommand = await execa('dotnet', [
+  const buildCommand = await execPipe('dotnet', [
     'build',
     ...args,
     ...resolved.buildArguments,
     ...properties,
-  ]);
+  ], options);
 
   if (buildCommand.failed) {
     throw new Error(`Cannot run 'dotnet build'\n\n${buildCommand.stdout}`);

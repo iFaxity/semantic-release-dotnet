@@ -1,7 +1,7 @@
 @ifaxity/semantic-release-dotnet
 ===================================
 
-[**semantic-release**](https://github.com/semantic-release/semantic-release) plugin to package and publish a package via NuGet using the dotnet-cli.
+[**semantic-release**](https://github.com/semantic-release/semantic-release) plugin to build a dotnet project using the dotnet-cli.
 
 [![Codacy grade](https://img.shields.io/codacy/grade/a0c628b128c044269faefc1da74382f7?style=for-the-badge&logo=codacy)](https://www.codacy.com/gh/iFaxity/semantic-release-dotnet/dashboard)
 [![npm (scoped)](https://img.shields.io/npm/v/semantic-release-dotnet?style=for-the-badge&logo=npm)](https://npmjs.org/package/@ifaxity/semantic-release-dotnet)
@@ -10,8 +10,8 @@
 
 | Step               | Description                                                                                             |
 |--------------------|---------------------------------------------------------------------------------------------------------|
-| `verifyConditions` | Execute a shell command to verify if the release should happen.                                         |
-| `prepare`          | Execute a shell command to prepare the release.                                                         |
+| `verifyConditions` | Verify that the dotnet-cli is installed and prints its version.                                         |
+| `prepare`          | Executes `dotnet clean` followed by `dotnet build` which builds a specified project.                    |
 
 
 Install
@@ -40,10 +40,8 @@ The plugin can be configured in the [**semantic-release** configuration file](ht
 ```
 
 With this example:
-- the shell command `./verify.sh` will be executed on the [verify conditions step](https://github.com/semantic-release/semantic-release#release-steps)
-- the shell command `./publish.sh 1.0.0 master 3 870668040000` (for the release of version `1.0.0` from branch `master` with `3` commits on `August 4th, 1997 at 2:14 AM`) will be executed on the [publish step](https://github.com/semantic-release/semantic-release#release-steps)
-
-**Note**: it's recommended to include @ifaxity/semantic-release-dotnet directly before this plugin or some other custom way.
+- The projects output will be cleaned
+- The project will be built and versioned
 
 
 Configuration
@@ -51,18 +49,101 @@ Configuration
 
 ### Environment variables
 
-| Variable            | Description                                                                                                                   |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `NUGET_PUSH_SOURCE` | Npm token created via [npm token create](https://docs.npmjs.com/getting-started/working_with_tokens#how-to-create-new-tokens) |
-| `NUGET_TOKEN`       | Npm username created via [npm adduser](https://docs.npmjs.com/cli/adduser) or on [npmjs.com](https://www.npmjs.com)           |
+| Variable              | Description                                                            |
+| ----------------------|------------------------------------------------------------------------|
+| `BUILD_PROJECT`       | Sets the `project` options default value to the specified value.       |
+| `BUILD_CONFIGURATION` | Sets the `configuration` options default value to the specified value. |
+| `BUILD_OUTPUT`        | Sets the `output` options default value to the specified value.        |
+| `BUILD_RUNTIME`       | Sets the `runtime` options default value to the specified value.       |
+| `BUILD_OS`            | Sets the `os` options default value to the specified value.            |
+| `BUILD_ARCH`          | Sets the `arch` options default value to the specified value.          |
 
 ### Options
 
-| Options      | Description                                                                                                         | Default                                                                                                                          |
-|--------------|---------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| `npmPublish` | Whether to publish the `npm` package to the registry. If `false` the `package.json` version will still be updated.  | `false` if the `package.json` [private](https://docs.npmjs.com/files/package.json#private) property is `true`, `true` otherwise. |
-| `pkgRoot`    | Directory path to publish.                                                                                          | `.`                                                                                                                              |
-| `tarballDir` | Directory path in which to write the package tarball. If `false` the tarball is not be kept on the file system.     | `false`                                                                                                                          |
+
+#### project
+
+- **Type:** `string`
+- **Related:** [dotnet build arguments](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#arguments)
+
+The project or solution file to build. If a project or solution file isn't specified, MSBuild searches the current working directory for a file that has a file extension that ends in either proj or sln and uses that file.
+
+#### configuration
+
+- **Type:** `string`
+- **Default:** `Release`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+Defines the build configuration. The default for most projects is Debug, but you can override the build configuration settings in your project.
+
+#### output
+
+- **Type:** `string`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+Directory in which to place the built binaries. If not specified, the default path is ./bin/{configuration}/{framework}/. For projects with multiple target frameworks (via the TargetFrameworks property), you also need to define --framework when you specify this option.
+
+#### restore
+
+- **Type:** `boolean`
+- **Default:** `false`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+Doesn't execute an implicit restore during build.
+
+#### force
+
+- **Type:** `boolean`
+- **Default:** `false`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+Forces all dependencies to be resolved even if the last restore was successful. Specifying this flag is the same as deleting the project.assets.json file.
+
+#### source
+
+- **Type:** `string[]`
+- **Default:** `[]`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+The URI of the NuGet package source to use during the restore operation.
+
+#### properties
+
+- **Type:** `Record<string, string>`
+- **Default:** `{}`
+- **Related:** [MSBuild properties](https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets#pack-target)
+
+MSBuild properties to override when building the project. See the MSBuild properties reference for a list of properties that can be set.
+
+
+#### os
+
+- **Type:** `string`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+Specifies the target operating system (OS). This is a shorthand syntax for setting the [Runtime Identifier (RID)](https://learn.microsoft.com/en-us/dotnet/core/rid-catalog), where the provided value is combined with the default RID. For example, on a win-x64 machine, specifying --os linux sets the RID to linux-x64. If you use this option, don't use the -r|--runtime option. Available since .NET 6.
+
+#### runtime
+
+- **Type:** `string`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+Specifies the target runtime. For a list of Runtime Identifiers (RIDs), see the [RID catalog](https://learn.microsoft.com/en-us/dotnet/core/rid-catalog). If you use this option with .NET 6 SDK, use --self-contained or --no-self-contained also. If not specified, the default is to build for the current OS and architecture.
+
+#### arch
+
+- **Type:** `sring`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+Specifies the target architecture. This is a shorthand syntax for setting the [Runtime Identifier (RID)](https://learn.microsoft.com/en-us/dotnet/core/rid-catalog), where the provided value is combined with the default RID. For example, on a win-x64 machine, specifying --arch x86 sets the RID to win-x86. If you use this option, don't use the -r|--runtime option. Available since .NET 6 Preview 7.
+
+#### buildArguments
+
+- **Type:** `string[]`
+- **Default:** `[]`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+Generic build arguments to send, can be used if there is a specific option that needs to be configured that is not in the config above.
 
 
 License

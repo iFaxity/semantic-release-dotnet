@@ -34,6 +34,7 @@ export async function resolveOptions(
     }
 
     return PluginOptions.parseAsync({
+        project: env.BUILD_PROJECT,
         arch: env.BUILD_ARCH,
         configuration: env.BUILD_CONFIGURATION,
         os: env.BUILD_OS,
