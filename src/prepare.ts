@@ -11,6 +11,12 @@ export async function prepare(
   const resolved = await resolveOptions(options, context);
   const args: string[] = [];
 
+  if (resolved.publish) {
+    if (resolved.publishProfile) {
+      resolved.properties.PublishProfile = resolved.publishProfile;
+    }
+  }
+
   const properties = Object.keys(resolved.properties)
     .map(key => `-p:${key}=${resolved.properties[key]}`);
 
@@ -20,6 +26,12 @@ export async function prepare(
 
   if (resolved.configuration) {
     args.push('--configuration', resolved.configuration);
+  }
+
+  if (resolved.selfContained === true) {
+    args.push('--self-contained');
+  } else if (resolved.selfContained === false) {
+    args.push('--no-self-contained');
   }
 
   if (resolved.os || resolved.arch) {
@@ -61,11 +73,15 @@ export async function prepare(
     throw new Error(`Cannot run 'dotnet clean'\n\n${cleanCommand.stdout}`);
   }
 
+  const command = resolved.publish
+    ? 'publish'
+    : 'build';
+
   // Run the build command.
-  logger.info(`Running the 'dotnet build' command`);
+  logger.info(`Running the 'dotnet ${command}' command`);
 
   const buildCommand = await execPipe('dotnet', [
-    'build',
+    command,
     ...args,
     ...resolved.buildArguments,
     ...properties,

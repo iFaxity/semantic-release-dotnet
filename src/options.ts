@@ -6,6 +6,9 @@ const PluginOptions = z.object({
     project: z.string().optional(),
     configuration: z.string().default('Release'),
     output: z.string().optional(),
+    // Publish
+    publish: z.boolean().default(false),
+    publishProfile: z.string().optional(),
     // Restore
     restore: z.boolean().default(false),
     force: z.boolean().optional(),
@@ -14,6 +17,7 @@ const PluginOptions = z.object({
     os: z.string().optional(),
     runtime: z.string().optional(),
     arch: z.string().optional(),
+    selfContained: z.boolean().optional(),
     // Other
     buildArguments: z.array(z.string()).default([]),
     properties: z.record(z.union([ z.string(), z.number(), z.boolean() ])),
@@ -40,6 +44,7 @@ export async function resolveOptions(
         os: env.BUILD_OS,
         output: env.BUILD_OUTPUT,
         runtime: env.BUILD_RUNTIME,
+        publishProfile: env.PUBLISH_PROFILE,
         ...options,
         properties,
     });

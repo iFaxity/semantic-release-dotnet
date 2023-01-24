@@ -49,14 +49,15 @@ Configuration
 
 ### Environment variables
 
-| Variable              | Description                                                            |
-| ----------------------|------------------------------------------------------------------------|
-| `BUILD_PROJECT`       | Sets the `project` options default value to the specified value.       |
-| `BUILD_CONFIGURATION` | Sets the `configuration` options default value to the specified value. |
-| `BUILD_OUTPUT`        | Sets the `output` options default value to the specified value.        |
-| `BUILD_RUNTIME`       | Sets the `runtime` options default value to the specified value.       |
-| `BUILD_OS`            | Sets the `os` options default value to the specified value.            |
-| `BUILD_ARCH`          | Sets the `arch` options default value to the specified value.          |
+| Variable              | Description                                                             |
+| ----------------------|-------------------------------------------------------------------------|
+| `BUILD_PROJECT`       | Sets the `project` options default value to the specified value.        |
+| `BUILD_CONFIGURATION` | Sets the `configuration` options default value to the specified value.  |
+| `BUILD_OUTPUT`        | Sets the `output` options default value to the specified value.         |
+| `BUILD_RUNTIME`       | Sets the `runtime` options default value to the specified value.        |
+| `BUILD_OS`            | Sets the `os` options default value to the specified value.             |
+| `BUILD_ARCH`          | Sets the `arch` options default value to the specified value.           |
+| `PUBLISH_PROFILE`     | Sets the `publishProfile` options default value to the specified value. |
 
 ### Options
 
@@ -82,6 +83,21 @@ Defines the build configuration. The default for most projects is Debug, but you
 - **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
 
 Directory in which to place the built binaries. If not specified, the default path is ./bin/{configuration}/{framework}/. For projects with multiple target frameworks (via the TargetFrameworks property), you also need to define --framework when you specify this option.
+
+#### publish
+
+- **Type:** `boolean`
+- **Default:** `false`
+- **Related:** [dotnet publish options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-publish#options)
+
+If true then the "build" command is swapped out ot instead use "publish" instead.
+
+#### publishProfile
+
+- **Type:** `string`
+- **Related:** [dotnet publish options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-publish#options)
+
+Name of the publish profile to use when publishing. Requires the option `publish` to be true.
 
 #### restore
 
@@ -132,10 +148,21 @@ Specifies the target runtime. For a list of Runtime Identifiers (RIDs), see the 
 
 #### arch
 
-- **Type:** `sring`
+- **Type:** `string`
 - **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
 
 Specifies the target architecture. This is a shorthand syntax for setting the [Runtime Identifier (RID)](https://learn.microsoft.com/en-us/dotnet/core/rid-catalog), where the provided value is combined with the default RID. For example, on a win-x64 machine, specifying --arch x86 sets the RID to win-x86. If you use this option, don't use the -r|--runtime option. Available since .NET 6 Preview 7.
+
+#### selfContained
+
+- **Type:** `string`
+- **Related:** [dotnet build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options)
+
+When the option is true then the .net runtime is packaged when publishing. The default is true if a runtime identifier is specified. Available since .NET 6 SDK.
+When the option is false then the application is published without the .net runtime and requires any target machiene to install a .net runtime to run the application. Available since .NET 6 SDK.
+
+The default is to not apply either, so set this explicitly to ensure the desired outcome.
+
 
 #### buildArguments
 
