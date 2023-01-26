@@ -17,6 +17,9 @@
       "require": "./dist/index.cjs"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "unbuild --stub",
     "build": "unbuild",
