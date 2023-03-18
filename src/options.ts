@@ -1,4 +1,4 @@
-import { Context } from 'semantic-release';
+import { Config, Context } from 'semantic-release';
 import { z } from 'zod';
 
 const PluginOptions = z.object({
@@ -26,7 +26,7 @@ const PluginOptions = z.object({
 export type PluginOptions = z.infer<typeof PluginOptions>;
 
 export async function resolveOptions(
-    options: Partial<PluginOptions>,
+    options: Config & Partial<PluginOptions>,
     context: Context
 ): Promise<PluginOptions> {
     const { env, nextRelease } = context;
