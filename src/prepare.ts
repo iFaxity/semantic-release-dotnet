@@ -69,6 +69,8 @@ export async function prepare(
     'clean',
   ], options);
 
+  logger.info(`Executed: '${cleanCommand.command}'.`);
+
   if (cleanCommand.failed) {
     throw new Error(`Cannot run 'dotnet clean'!`);
   }
@@ -87,7 +89,9 @@ export async function prepare(
     ...properties,
   ], options);
 
+  logger.info(`Executed: '${buildCommand.command}'.`);
+
   if (buildCommand.failed) {
-    throw new Error(`Cannot run 'dotnet build'!`);
+    throw new Error(`Cannot run 'dotnet ${command}'!`);
   }
 }
